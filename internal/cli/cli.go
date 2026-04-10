@@ -51,7 +51,7 @@ func Parse(args []string) (*Config, error) {
 // Run executes the CLI based on the provided configuration.
 func Run(cfg *Config) int {
 	if cfg.Help {
-		flag.Usage()
+		printUsage()
 		return 0
 	}
 
@@ -62,7 +62,7 @@ func Run(cfg *Config) int {
 
 	if len(cfg.Files) == 0 {
 		fmt.Fprintf(os.Stderr, "Error: no files specified\n")
-		flag.Usage()
+		printUsage()
 		return 2
 	}
 
@@ -108,4 +108,21 @@ func Run(cfg *Config) int {
 		return 0
 	}
 	return 1
+}
+
+// printUsage prints the usage information to stderr.
+func printUsage() {
+	fs := flag.NewFlagSet("goshellcheck", flag.ContinueOnError)
+	fs.Bool("help", false, "Show help")
+	fs.Bool("h", false, "Show help (shorthand)")
+	fs.Bool("version", false, "Show version information")
+	fs.Bool("v", false, "Show version information (shorthand)")
+	
+	fmt.Fprintf(os.Stderr, "Usage: %s [OPTIONS] FILE...\n", filepath.Base(os.Args[0]))
+	fmt.Fprintf(os.Stderr, "\nOptions:\n")
+	fs.PrintDefaults()
+	fmt.Fprintf(os.Stderr, "\nExamples:\n")
+	fmt.Fprintf(os.Stderr, "  %s script.sh\n", filepath.Base(os.Args[0]))
+	fmt.Fprintf(os.Stderr, "  %s --version\n", filepath.Base(os.Args[0]))
+	fmt.Fprintf(os.Stderr, "  %s --help\n", filepath.Base(os.Args[0]))
 }
