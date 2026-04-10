@@ -27,43 +27,43 @@ type Stmt interface {
 type Program struct {
 	Shebang   *Shebang
 	Statements []Stmt
-	Pos       token.Position
+	StartPos  token.Position
 	EndPos    token.Position
 }
 
-func (p *Program) Pos() token.Position { return p.Pos }
+func (p *Program) Pos() token.Position { return p.StartPos }
 func (p *Program) End() token.Position { return p.EndPos }
 
 // Shebang represents a shebang line.
 type Shebang struct {
 	Value    string
-	Pos      token.Position
+	StartPos token.Position
 	EndPos   token.Position
 }
 
-func (s *Shebang) Pos() token.Position { return s.Pos }
+func (s *Shebang) Pos() token.Position { return s.StartPos }
 func (s *Shebang) End() token.Position { return s.EndPos }
 func (s *Shebang) exprNode() {}
 
 // Comment represents a comment.
 type Comment struct {
 	Text     string
-	Pos      token.Position
+	StartPos token.Position
 	EndPos   token.Position
 }
 
-func (c *Comment) Pos() token.Position { return c.Pos }
+func (c *Comment) Pos() token.Position { return c.StartPos }
 func (c *Comment) End() token.Position { return c.EndPos }
 func (c *Comment) exprNode() {}
 
 // Word represents a word in a command.
 type Word struct {
 	Parts    []WordPart
-	Pos      token.Position
+	StartPos token.Position
 	EndPos   token.Position
 }
 
-func (w *Word) Pos() token.Position { return w.Pos }
+func (w *Word) Pos() token.Position { return w.StartPos }
 func (w *Word) End() token.Position { return w.EndPos }
 func (w *Word) exprNode() {}
 
@@ -76,11 +76,11 @@ type WordPart interface {
 // Literal represents a literal string.
 type Literal struct {
 	Value    string
-	Pos      token.Position
+	StartPos token.Position
 	EndPos   token.Position
 }
 
-func (l *Literal) Pos() token.Position { return l.Pos }
+func (l *Literal) Pos() token.Position { return l.StartPos }
 func (l *Literal) End() token.Position { return l.EndPos }
 func (l *Literal) wordPartNode() {}
 func (l *Literal) exprNode() {}
@@ -88,11 +88,11 @@ func (l *Literal) exprNode() {}
 // SingleQuoted represents a single-quoted string.
 type SingleQuoted struct {
 	Value    string
-	Pos      token.Position
+	StartPos token.Position
 	EndPos   token.Position
 }
 
-func (s *SingleQuoted) Pos() token.Position { return s.Pos }
+func (s *SingleQuoted) Pos() token.Position { return s.StartPos }
 func (s *SingleQuoted) End() token.Position { return s.EndPos }
 func (s *SingleQuoted) wordPartNode() {}
 func (s *SingleQuoted) exprNode() {}
@@ -100,11 +100,11 @@ func (s *SingleQuoted) exprNode() {}
 // DoubleQuoted represents a double-quoted string.
 type DoubleQuoted struct {
 	Parts    []WordPart
-	Pos      token.Position
+	StartPos token.Position
 	EndPos   token.Position
 }
 
-func (d *DoubleQuoted) Pos() token.Position { return d.Pos }
+func (d *DoubleQuoted) Pos() token.Position { return d.StartPos }
 func (d *DoubleQuoted) End() token.Position { return d.EndPos }
 func (d *DoubleQuoted) wordPartNode() {}
 func (d *DoubleQuoted) exprNode() {}
@@ -112,11 +112,11 @@ func (d *DoubleQuoted) exprNode() {}
 // VariableExpansion represents a simple variable expansion like $var.
 type VariableExpansion struct {
 	Name     string
-	Pos      token.Position
+	StartPos token.Position
 	EndPos   token.Position
 }
 
-func (v *VariableExpansion) Pos() token.Position { return v.Pos }
+func (v *VariableExpansion) Pos() token.Position { return v.StartPos }
 func (v *VariableExpansion) End() token.Position { return v.EndPos }
 func (v *VariableExpansion) wordPartNode() {}
 func (v *VariableExpansion) exprNode() {}
@@ -125,11 +125,11 @@ func (v *VariableExpansion) exprNode() {}
 type BracedVariableExpansion struct {
 	Name     string
 	Content  *Word // For more complex expansions like ${var:-default}
-	Pos      token.Position
+	StartPos token.Position
 	EndPos   token.Position
 }
 
-func (b *BracedVariableExpansion) Pos() token.Position { return b.Pos }
+func (b *BracedVariableExpansion) Pos() token.Position { return b.StartPos }
 func (b *BracedVariableExpansion) End() token.Position { return b.EndPos }
 func (b *BracedVariableExpansion) wordPartNode() {}
 func (b *BracedVariableExpansion) exprNode() {}
@@ -137,11 +137,11 @@ func (b *BracedVariableExpansion) exprNode() {}
 // CommandExpansion represents a command expansion like $(cmd) or `cmd`.
 type CommandExpansion struct {
 	Command  *Command
-	Pos      token.Position
+	StartPos token.Position
 	EndPos   token.Position
 }
 
-func (c *CommandExpansion) Pos() token.Position { return c.Pos }
+func (c *CommandExpansion) Pos() token.Position { return c.StartPos }
 func (c *CommandExpansion) End() token.Position { return c.EndPos }
 func (c *CommandExpansion) wordPartNode() {}
 func (c *CommandExpansion) exprNode() {}
@@ -150,11 +150,11 @@ func (c *CommandExpansion) exprNode() {}
 type Assignment struct {
 	Name     string
 	Value    *Word
-	Pos      token.Position
+	StartPos token.Position
 	EndPos   token.Position
 }
 
-func (a *Assignment) Pos() token.Position { return a.Pos }
+func (a *Assignment) Pos() token.Position { return a.StartPos }
 func (a *Assignment) End() token.Position { return a.EndPos }
 func (a *Assignment) exprNode() {}
 
@@ -163,11 +163,11 @@ type SimpleCommand struct {
 	Assignments []*Assignment
 	Words       []*Word
 	Redirects   []*Redirect
-	Pos         token.Position
+	StartPos    token.Position
 	EndPos      token.Position
 }
 
-func (s *SimpleCommand) Pos() token.Position { return s.Pos }
+func (s *SimpleCommand) Pos() token.Position { return s.StartPos }
 func (s *SimpleCommand) End() token.Position { return s.EndPos }
 func (s *SimpleCommand) stmtNode() {}
 
@@ -175,11 +175,11 @@ func (s *SimpleCommand) stmtNode() {}
 type Pipeline struct {
 	Commands []*Command
 	Negated  bool // true if preceded by !
-	Pos      token.Position
+	StartPos token.Position
 	EndPos   token.Position
 }
 
-func (p *Pipeline) Pos() token.Position { return p.Pos }
+func (p *Pipeline) Pos() token.Position { return p.StartPos }
 func (p *Pipeline) End() token.Position { return p.EndPos }
 func (p *Pipeline) stmtNode() {}
 
@@ -187,11 +187,11 @@ func (p *Pipeline) stmtNode() {}
 type Command struct {
 	Simple *SimpleCommand
 	// Future: compound commands like if, for, while, etc.
-	Pos    token.Position
-	EndPos token.Position
+	StartPos token.Position
+	EndPos   token.Position
 }
 
-func (c *Command) Pos() token.Position { return c.Pos }
+func (c *Command) Pos() token.Position { return c.StartPos }
 func (c *Command) End() token.Position { return c.EndPos }
 func (c *Command) stmtNode() {}
 
@@ -200,22 +200,22 @@ type Redirect struct {
 	FD       int    // file descriptor, -1 for default
 	Operator string // <, >, >>, <<, etc.
 	Target   *Word
-	Pos      token.Position
+	StartPos token.Position
 	EndPos   token.Position
 }
 
-func (r *Redirect) Pos() token.Position { return r.Pos }
+func (r *Redirect) Pos() token.Position { return r.StartPos }
 func (r *Redirect) End() token.Position { return r.EndPos }
 func (r *Redirect) exprNode() {}
 
 // CommandList represents a list of commands separated by ; or newline.
 type CommandList struct {
 	Commands []Stmt
-	Pos      token.Position
+	StartPos token.Position
 	EndPos   token.Position
 }
 
-func (c *CommandList) Pos() token.Position { return c.Pos }
+func (c *CommandList) Pos() token.Position { return c.StartPos }
 func (c *CommandList) End() token.Position { return c.EndPos }
 func (c *CommandList) stmtNode() {}
 
@@ -224,10 +224,10 @@ type AndOr struct {
 	Left     Stmt
 	Operator string // && or ||
 	Right    Stmt
-	Pos      token.Position
+	StartPos token.Position
 	EndPos   token.Position
 }
 
-func (a *AndOr) Pos() token.Position { return a.Pos }
+func (a *AndOr) Pos() token.Position { return a.StartPos }
 func (a *AndOr) End() token.Position { return a.EndPos }
 func (a *AndOr) stmtNode() {}

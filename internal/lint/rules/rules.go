@@ -171,7 +171,7 @@ func NewUnquotedEchoVariableRule() lint.Rule {
 						// Check if command is "echo"
 						if isEchoCommand(cmd) {
 							// Check arguments for unquoted variables
-							for i, word := range cmd.Words[1:] {
+							for _, word := range cmd.Words[1:] {
 								if hasUnquotedVariableExpansion(word) {
 									pos := word.Pos()
 									diags = append(diags, diag.New(

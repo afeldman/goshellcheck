@@ -2,7 +2,6 @@
 package lexer
 
 import (
-	"unicode"
 	"unicode/utf8"
 
 	"github.com/afeldman/goshellcheck/internal/syntax/token"
