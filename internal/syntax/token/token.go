@@ -154,23 +154,33 @@ func (pos Position) String() string {
 	return s
 }
 
+// Advance returns a new Position advanced by n bytes.
+func (pos Position) Advance(n int) Position {
+	return Position{
+		Filename: pos.Filename,
+		Offset:   pos.Offset + n,
+		Line:     pos.Line,
+		Column:   pos.Column + n,
+	}
+}
+
 // Token represents a lexical token.
 type Token struct {
-	Type    TokenType
-	Literal string
-	Pos     Position
+	Type     TokenType
+	Literal  string
+	Position Position
 }
 
 // New creates a new token.
 func New(typ TokenType, lit string, pos Position) Token {
 	return Token{
-		Type:    typ,
-		Literal: lit,
-		Pos:     pos,
+		Type:     typ,
+		Literal:  lit,
+		Position: pos,
 	}
 }
 
 // String returns a string representation of the token.
 func (t Token) String() string {
-	return fmt.Sprintf("%s %q at %s", t.Type, t.Literal, t.Pos)
+	return fmt.Sprintf("%s %q at %s", t.Type, t.Literal, t.Position)
 }

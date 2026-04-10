@@ -42,9 +42,9 @@ func (p *Parser) Parse() (*ast.Program, []string) {
 	// Parse shebang if present
 	if p.currentToken.Type == token.COMMENT && len(p.currentToken.Literal) > 2 && p.currentToken.Literal[:2] == "#!" {
 		program.Shebang = &ast.Shebang{
-			Value:  p.currentToken.Literal[2:],
-			Pos:    p.currentToken.Position,
-			EndPos: p.currentToken.Position.Advance(len(p.currentToken.Literal)),
+			Value:    p.currentToken.Literal[2:],
+			StartPos: p.currentToken.Position,
+			EndPos:   p.currentToken.Position,
 		}
 		p.nextToken()
 	}
@@ -89,9 +89,9 @@ func (p *Parser) parseCommand() *ast.Command {
 	simpleCmd := p.parseSimpleCommand()
 	if simpleCmd != nil {
 		return &ast.Command{
-			Simple: simpleCmd,
-			Pos:    pos,
-			EndPos: simpleCmd.EndPos,
+			Simple:   simpleCmd,
+			StartPos: pos,
+			EndPos:   simpleCmd.EndPos,
 		}
 	}
 	
@@ -155,7 +155,7 @@ func (p *Parser) parseSimpleCommand() *ast.SimpleCommand {
 		Assignments: assignments,
 		Words:       words,
 		Redirects:   redirects,
-		Pos:         pos,
+		StartPos:    pos,
 		EndPos:      endPos,
 	}
 }
@@ -199,10 +199,10 @@ func (p *Parser) parseAssignment() *ast.Assignment {
 	}
 	
 	return &ast.Assignment{
-		Name:   name,
-		Value:  value,
-		Pos:    pos,
-		EndPos: endPos,
+		Name:     name,
+		Value:    value,
+		StartPos: pos,
+		EndPos:   endPos,
 	}
 }
 
@@ -217,9 +217,9 @@ func (p *Parser) parseWord() *ast.Word {
 		switch p.currentToken.Type {
 		case token.LITERAL:
 			part = &ast.Literal{
-				Value:  p.currentToken.Literal,
-				Pos:    p.currentToken.Position,
-				EndPos: p.currentToken.Position.Advance(len(p.currentToken.Literal)),
+				Value:    p.currentToken.Literal,
+				StartPos: p.currentToken.Position,
+				EndPos:   p.currentToken.Position.Advance(len(p.currentToken.Literal)),
 			}
 			p.nextToken()
 			
@@ -230,9 +230,9 @@ func (p *Parser) parseWord() *ast.Word {
 				value = value[1 : len(value)-1]
 			}
 			part = &ast.SingleQuoted{
-				Value:  value,
-				Pos:    p.currentToken.Position,
-				EndPos: p.currentToken.Position.Advance(len(p.currentToken.Literal)),
+				Value:    value,
+				StartPos: p.currentToken.Position,
+				EndPos:   p.currentToken.Position.Advance(len(p.currentToken.Literal)),
 			}
 			p.nextToken()
 			
@@ -257,9 +257,9 @@ func (p *Parser) parseWord() *ast.Word {
 			// End of word
 			endPos := parts[len(parts)-1].End()
 			return &ast.Word{
-				Parts:  parts,
-				Pos:    pos,
-				EndPos: endPos,
+				Parts:    parts,
+				StartPos: pos,
+				EndPos:   endPos,
 			}
 		}
 		
@@ -277,17 +277,17 @@ func (p *Parser) parseDoubleQuoted() *ast.DoubleQuoted {
 	// For now, treat the entire double-quoted string as a literal
 	// TODO: Parse expansions inside double quotes
 	part := &ast.Literal{
-		Value:  literal,
-		Pos:    pos,
-		EndPos: pos.Advance(len(literal)),
+		Value:    literal,
+		StartPos: pos,
+		EndPos:   pos.Advance(len(literal)),
 	}
 	
 	p.nextToken()
 	
 	return &ast.DoubleQuoted{
-		Parts:  []ast.WordPart{part},
-		Pos:    pos,
-		EndPos: pos.Advance(len(literal)),
+		Parts:    []ast.WordPart{part},
+		StartPos: pos,
+		EndPos:   pos.Advance(len(literal)),
 	}
 }
 
@@ -306,9 +306,9 @@ func (p *Parser) parseVariableExpansion() *ast.VariableExpansion {
 	p.nextToken()
 	
 	return &ast.VariableExpansion{
-		Name:   name,
-		Pos:    pos,
-		EndPos: endPos,
+		Name:     name,
+		StartPos: pos,
+		EndPos:   endPos,
 	}
 }
 
@@ -336,9 +336,9 @@ func (p *Parser) parseBracedVariableExpansion() *ast.BracedVariableExpansion {
 	p.nextToken()
 	
 	return &ast.BracedVariableExpansion{
-		Name:    name,
-		Pos:     pos,
-		EndPos:  endPos,
+		Name:     name,
+		StartPos: pos,
+		EndPos:   endPos,
 	}
 }
 
@@ -355,9 +355,9 @@ func (p *Parser) parseCommandExpansion() *ast.CommandExpansion {
 		simpleCmd := p.parseSimpleCommand()
 		if simpleCmd != nil {
 			cmd = &ast.Command{
-				Simple: simpleCmd,
-				Pos:    simpleCmd.Pos,
-				EndPos: simpleCmd.EndPos,
+				Simple:   simpleCmd,
+				StartPos: simpleCmd.StartPos,
+				EndPos:   simpleCmd.EndPos,
 			}
 		}
 	}
@@ -372,9 +372,9 @@ func (p *Parser) parseCommandExpansion() *ast.CommandExpansion {
 	p.nextToken()
 	
 	return &ast.CommandExpansion{
-		Command: cmd,
-		Pos:     pos,
-		EndPos:  endPos,
+		Command:  cmd,
+		StartPos: pos,
+		EndPos:   endPos,
 	}
 }
 
@@ -416,7 +416,6 @@ func (p *Parser) parseRedirect() *ast.Redirect {
 		return nil
 	}
 	
-	opPos := p.currentToken.Position
 	p.nextToken()
 	
 	// Parse target word
@@ -428,11 +427,11 @@ func (p *Parser) parseRedirect() *ast.Redirect {
 	
 	endPos := target.EndPos
 	return &ast.Redirect{
-		FD:       fd,
-		Operator: operator,
-		Target:   target,
-		Pos:      pos,
-		EndPos:   endPos,
+		FD:        fd,
+		Operator:  operator,
+		Target:    target,
+		StartPos:  pos,
+		EndPos:    endPos,
 	}
 }
 
